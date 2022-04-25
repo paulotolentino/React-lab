@@ -1,23 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Span from "./Span";
+// import SpanGroup from "./SpanGroup";
+import "./App.css";
 
 function App() {
+  const [text, setText] = React.useState("");
+  const [textToSpan, setTextToSpan] = React.useState("");
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Span value={textToSpan} />
+      {/* <SpanGroup value={textToSpan} /> */}
+      Não Span:
+      <input
+        type="text"
+        value={text}
+        onChange={(event) => setText(event.target.value)}
+      />
+      Span:
+      <input
+        type="text"
+        value={textToSpan}
+        onChange={(event) => setTextToSpan(event.target.value)}
+      />
     </div>
   );
 }
