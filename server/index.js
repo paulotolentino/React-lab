@@ -1,15 +1,21 @@
 var WebSocketServer = require("ws").Server; // webSocket library
+const express = require("express");
 
-const port = process.env.PORT || 1337;
+const PORT = process.env.PORT || 1337;
+
+function heartbeat() {
+  this.isAlive = true;
+}
 
 // create the server
+const server = express().listen(PORT, () =>
+  console.log(`Listening on ${PORT}`)
+);
 const wsServer = new WebSocketServer(
   {
-    port,
+    server,
   },
-  () => {
-    console.log(`server up, listening on port ${port}`);
-  }
+  () => console.log(`WebSocket UP`)
 );
 var clients = new Array();
 
@@ -17,6 +23,9 @@ var clients = new Array();
 function handleConnection(client, request) {
   console.log("New Connection"); // you have a new client
   clients.push(client); // add this client to the clients array
+
+  client.isAlive = true;
+  client.on("pong", heartbeat);
 
   function endClient() {
     // when a client closes its connection
@@ -31,7 +40,6 @@ function handleConnection(client, request) {
   function clientResponse(data) {
     console.log(request.connection.remoteAddress + ": " + data);
     // Process WebSocket message
-    console.log("data", "" + data);
     const utf8Data = JSON.parse("" + data);
     const reponseData = {
       message: `${utf8Data.sender}: ${utf8Data.message}`,
@@ -54,4 +62,16 @@ function broadcast(data) {
   }
 }
 
+const interval = setInterval(function ping() {
+  wsServer.clients.forEach(function each(ws) {
+    if (ws.isAlive === false) return ws.terminate();
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 5000);
+
 wsServer.on("connection", handleConnection);
+
+wsServer.on("close", function close() {
+  clearInterval(interval);
+});
