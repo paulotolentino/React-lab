@@ -5,34 +5,7 @@
   justify-content: center;
 }
 
-.history {
-  display: flex;
-  flex-direction: column-reverse;
-  width: 100vw;
-  height: 300px;
-  padding: 0 5px;
-  background-color: antiquewhite;
-  overflow: auto;
-  overscroll-behavior-y: contain;
-}
-
-.me {
-  background-color: aqua;
-  width: fit-content;
-  align-self: flex-end;
-  margin: 2px 5px;
-  overflow-wrap: anywhere;
-}
-
-.other {
-  background-color: darkkhaki;
-  width: fit-content;
-  align-self: flex-start;
-  margin: 2px 5px;
-}
-
 form {
-  width: 100vw;
   display: flex;
 }
 
@@ -41,24 +14,28 @@ form {
   font-size: 1.2rem;
 }
 
-#login {
-  padding: 0 10%;
-  justify-content: center;
-}
-
 label {
   padding-right: 5px;
 }
 
-#login > #input-name {
-  flex-grow: unset;
-  font-size: 1.2rem;
-}
-
-.login-div {
+.chat-area {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+}
+
+.content {
+  display: flex;
+  width: 100vw;
+  max-width: 700px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .chat-area {
+    width: 60%;
+  }
 }

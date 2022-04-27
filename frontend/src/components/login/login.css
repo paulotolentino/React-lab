@@ -1,0 +1,34 @@
+.login-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+#login {
+  display: flex;
+  padding: 0 10%;
+  width: 100vw;
+  align-items: center;
+  height: 50vh;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#login > label {
+  flex-grow: unset;
+  font-size: 1.2rem;
+  padding-right: 5px;
+}
+
+#input-name {
+  margin: 10px;
+}
+
+@media (min-width: 1024px) {
+  #login {
+    flex-direction: row;
+  }
+}

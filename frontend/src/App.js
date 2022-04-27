@@ -1,24 +1,46 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
+import Login from "./components/login";
+import Header from "./components/header";
+import AvailableUsers from "./components/available-users";
+import History from "./components/history";
 import "./App.css";
 
 function App() {
-  const [message, setMessage] = React.useState("");
-  const [messageHistory, setMessageHistory] = React.useState([]);
-  const [yourName, setYourName] = React.useState("");
-  const [step, setStep] = React.useState(1);
-  const [wsUrl, setWsUrl] = React.useState("");
+  const [message, setMessage] = useState("");
+  const [yourName, setYourName] = useState("");
+  const [step, setStep] = useState(1);
+  const [wsUrl, setWsUrl] = useState("");
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [specificUser, setSpecificUser] = useState("all");
+  const [messageHistoryStack, setMessageHistoryStack] = useState({ all: [] });
 
   const { sendJsonMessage, lastJsonMessage, readyState, getWebSocket } =
     useWebSocket(wsUrl, {}, !!wsUrl);
 
   const webSocket = getWebSocket();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (lastJsonMessage !== null) {
-      setMessageHistory((prev) => prev.concat(lastJsonMessage));
+      setAvailableUsers(lastJsonMessage.clients);
+      if (
+        lastJsonMessage.to === yourName ||
+        lastJsonMessage.to === "all" ||
+        lastJsonMessage.from === yourName
+      ) {
+        const fromWho =
+          lastJsonMessage.to === "all"
+            ? "all"
+            : lastJsonMessage.to === yourName
+            ? lastJsonMessage.from
+            : lastJsonMessage.to;
+        setMessageHistoryStack((prev) => ({
+          ...prev,
+          [fromWho]: (prev[fromWho] || []).concat(lastJsonMessage),
+        }));
+      }
     }
-  }, [lastJsonMessage, setMessageHistory]);
+  }, [lastJsonMessage, yourName, setMessageHistoryStack, setAvailableUsers]);
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
@@ -28,84 +50,82 @@ function App() {
     [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState];
 
+  const handleLogin = (event) => {
+    event.preventDefault();
+    setWsUrl("ws://chatbackendps.herokuapp.com");
+    setStep(2);
+  };
+
+  const hanldeLogout = () => {
+    webSocket.close();
+    setStep(1);
+    setWsUrl("");
+    setYourName("");
+  };
+
+  const handleChooseUser = (user) => {
+    setSpecificUser(user);
+  };
+
   return (
     <div className="App">
       {step === 1 ? (
-        <div className="login-div">
-          <form
-            autoComplete="off"
-            id="login"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setWsUrl("ws://chatbackendps.herokuapp.com");
-              setStep(2);
-            }}
-          >
-            <label htmlFor="input-name">Digite seu nome:</label>
-            <input
-              type="text"
-              id="input-name"
-              value={yourName}
-              onChange={(event) => setYourName(event.target.value)}
-            />
-            <button type="submit" disabled={!yourName}>
-              Entrar
-            </button>
-          </form>
-        </div>
+        <Login
+          onSubmit={handleLogin}
+          onChange={(event) => setYourName(event.target.value)}
+          isButtonDisabled={!yourName}
+          username={yourName}
+        />
       ) : (
-        <>
-          <div>
-            <span>Entrou como {yourName}</span>
-            <button
-              type="button"
-              onClick={() => {
-                webSocket.close();
-                setStep(1);
-                setWsUrl("");
-              }}
-            >
-              Sair
-            </button>
-          </div>
-          <span>The WebSocket is currently {connectionStatus}</span>
-          <div className="history">
-            {messageHistory
-              .map((message) => (
-                <div
-                  className={message.sender === yourName ? "me" : "other"}
-                  key={message.id}
-                >
-                  {message ? message.message : null}
-                </div>
-              ))
-              .reverse()}
-          </div>
-          <form
-            autoComplete="off"
-            onSubmit={(event) => {
-              event.preventDefault();
-              sendJsonMessage({ message, sender: yourName });
-              setMessage("");
-            }}
-          >
-            <input
-              type="text"
-              id="input-message"
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
+        <section className="container">
+          <Header
+            hanldeLogout={hanldeLogout}
+            username={yourName}
+            connectionStatus={connectionStatus}
+          />
+          <div className="content">
+            <AvailableUsers
+              availableUsers={availableUsers}
+              username={yourName}
+              chooseUser={handleChooseUser}
+              choosedUser={specificUser}
             />
-            <button
-              type="submit"
-              disabled={readyState !== ReadyState.OPEN || !message}
-            >
-              Enviar
-            </button>
-          </form>
-        </>
+            <div className="chat-area">
+              <History
+                username={yourName}
+                messageHistory={messageHistoryStack[specificUser]}
+              />
+              <form
+                autoComplete="off"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  sendJsonMessage({
+                    message,
+                    from: yourName,
+                    to: specificUser,
+                  });
+                  setMessage("");
+                }}
+              >
+                <input
+                  type="text"
+                  id="input-message"
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                />
+                <button
+                  type="submit"
+                  disabled={readyState !== ReadyState.OPEN || !message}
+                >
+                  Enviar
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
       )}
     </div>
   );
 }
 
-export default React.memo(App);
+export default App;

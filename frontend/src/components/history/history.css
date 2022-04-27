@@ -1,0 +1,24 @@
+.history {
+  display: flex;
+  flex-direction: column-reverse;
+  height: 300px;
+  padding: 0 5px;
+  background-color: antiquewhite;
+  overflow: auto;
+  overscroll-behavior-y: contain;
+}
+
+.me {
+  background-color: aqua;
+  width: fit-content;
+  align-self: flex-end;
+  margin: 2px 5px;
+  overflow-wrap: anywhere;
+}
+
+.other {
+  background-color: rgb(255, 249, 170);
+  width: fit-content;
+  align-self: flex-start;
+  margin: 2px 5px;
+}

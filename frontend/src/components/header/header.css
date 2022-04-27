@@ -1,0 +1,11 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+}
+
+.login-info {
+  display: flex;
+  justify-content: space-between;
+}

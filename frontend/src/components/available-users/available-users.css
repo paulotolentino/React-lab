@@ -1,0 +1,18 @@
+.available-users {
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+  background-color: aliceblue;
+}
+
+.available-users > span {
+  cursor: pointer;
+}
+
+.hide {
+  display: none;
+}
+
+.selected {
+  background-color: rgb(132, 194, 248);
+}

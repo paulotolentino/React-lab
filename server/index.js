@@ -41,10 +41,14 @@ function handleConnection(client, request) {
     console.log(request.connection.remoteAddress + ": " + data);
     // Process WebSocket message
     const utf8Data = JSON.parse("" + data);
+    var position = clients.indexOf(client);
+    clients[position].name = utf8Data.from;
     const reponseData = {
-      message: `${utf8Data.sender}: ${utf8Data.message}`,
+      message: `${utf8Data.from}: ${utf8Data.message}`,
       id: Math.random(),
-      sender: utf8Data.sender,
+      from: utf8Data.from,
+      to: utf8Data.to,
+      clients: clients.map((c) => c.name),
     };
     broadcast(reponseData);
   }
